@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TextInput, Button, FlatList, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { MaterialIcons } from '@expo/vector-icons';
 
 export default function App() {
   const [task, setTask] = useState('');
@@ -61,6 +62,10 @@ export default function App() {
     setTasks(tasks.filter(t => t.key !== key));
   };
 
+  const handleDeleteCompleted = () => {
+    setTasks(tasks.filter(t => !t.completed));
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>To-Do List</Text>
@@ -71,6 +76,14 @@ export default function App() {
         onChangeText={setTask}
       />
       <Button title="Agregar tarea" onPress={handleAddTask} />
+      <TouchableOpacity
+        style={styles.deleteCompletedBtn}
+        onPress={handleDeleteCompleted}
+        disabled={tasks.filter(t => t.completed).length === 0}
+      >
+        <MaterialIcons name="delete-sweep" size={24} color="#fff" />
+        <Text style={styles.deleteCompletedText}>Eliminar completadas</Text>
+      </TouchableOpacity>
       <Text style={[styles.message, { color: messageColor }]}>{message}</Text>
       <FlatList
         data={tasks}
@@ -135,6 +148,21 @@ const styles = StyleSheet.create({
   deleteButton: {
     color: 'red',
     marginLeft: 16,
+    fontWeight: 'bold',
+  },
+  deleteCompletedBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#ff5252',
+    padding: 8,
+    borderRadius: 5,
+    marginVertical: 8,
+    alignSelf: 'flex-end',
+    opacity: 1,
+  },
+  deleteCompletedText: {
+    color: '#fff',
+    marginLeft: 8,
     fontWeight: 'bold',
   },
 });
