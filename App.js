@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TextInput, Button, FlatList } from 'react-native';
+import { StyleSheet, Text, View, TextInput, Button, FlatList, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function App() {
@@ -47,8 +47,18 @@ export default function App() {
       setMessageColor('red');
       return;
     }
-    setTasks([...tasks, { key: Date.now().toString(), text: task }]);
+    setTasks([...tasks, { key: Date.now().toString(), text: task, completed: false }]);
     setTask('');
+  };
+
+  const handleToggleComplete = (key) => {
+    setTasks(tasks.map(t =>
+      t.key === key ? { ...t, completed: !t.completed } : t
+    ));
+  };
+
+  const handleDeleteTask = (key) => {
+    setTasks(tasks.filter(t => t.key !== key));
   };
 
   return (
@@ -66,12 +76,18 @@ export default function App() {
         data={tasks}
         renderItem={({ item }) => (
           <View style={styles.taskItem}>
-            <Text>{item.text}</Text>
+            <TouchableOpacity onPress={() => handleToggleComplete(item.key)} style={{ flex: 1 }}>
+              <Text style={item.completed ? styles.completedText : null}>
+                {item.text}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => handleDeleteTask(item.key)}>
+              <Text style={styles.deleteButton}>Eliminar</Text>
+            </TouchableOpacity>
           </View>
         )}
         style={styles.list}
       />
-      {/* StatusBar removido */}
     </View>
   );
 }
@@ -106,8 +122,19 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   taskItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
+  },
+  completedText: {
+    textDecorationLine: 'line-through',
+    color: '#888',
+  },
+  deleteButton: {
+    color: 'red',
+    marginLeft: 16,
+    fontWeight: 'bold',
   },
 });
